@@ -30,7 +30,13 @@ if(isset($_POST['submit'])){
     $insertTransOrder = mysqli_query($config, "INSERT INTO trans_order( id_customer, order_code, order_date, order_status, order_pay, order_change, total) VALUES ('$id_customer','$nextCode','$order_date', '$order_status','$order_pay','$order_change', '$total')");
 }
 
-
+if(isset($_GET['check'])){
+  $id_user = $_GET['check'];
+  $selectEdit = mysqli_query($config, "SELECT * FROM trans_order WHERE id = $id_user");
+  $rowEdit = mysqli_fetch_assoc($selectEdit);
+  $queryEdit = mysqli_query ($config, "UPDATE `trans_order` SET `order_end_date`= NOW(),`order_status`= 1 WHERE id = $id_user");
+  header ("location=?page=transaction");
+}
 ?>
 
 <div class="col-xxl">
@@ -58,7 +64,7 @@ if(isset($_POST['submit'])){
         </div>
         </div>
 
-        <!-- Order Date (readonly now) -->
+        <!-- Order Date -->
         <div class="row mb-3">
           <label class="col-sm-2 col-form-label">Order Date</label>
           <div class="col-sm-10">

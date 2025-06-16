@@ -1,6 +1,7 @@
 <?php 
     $queryCustomer = mysqli_query($config, 
     "SELECT 
+    trans_order.id,
     trans_order.order_code,
     trans_order.order_date,
     trans_order.order_end_date,
@@ -32,7 +33,7 @@
 
     WHERE trans_order.deleted_at IS NULL;
     ");
-    $rowCustomer = mysqli_fetch_all($queryCustomer, MYSQLI_ASSOC);
+    $rowCustomer = mysqli_fetch_all($queryCustomer, MYSQLI_ASSOC);    
 ?>
 <!-- Striped Rows -->
 <div class="card">
@@ -65,9 +66,9 @@
                 <td><?= $row['qty'] ?></td>
                 <td>Rp <?= $row['total'] ?></td>
                 <td>
-                    <a href="?page=detai-order&edit=<?php echo $row['id']?>" class = "btn btn-warning" name="edit">Detail</a>
-                    <a href="?page=tambah-order&edit=<?php echo $row['id']?>" class = "btn btn-primary" name="edit">Edit</a>
-                    <a onclick="return confirm('Are you sure wanna delete this data?')" href="?page=tambah-customer&delete=<?php echo $row['id']?>" class = "btn btn-danger" name="delete">Delete</a>
+                    <a href="?page=detai-order&edit=<?php echo $row['id']?>" class = "btn btn-primary" name="detail">Detail</a>
+                    <a href="?page=tambah-transaction&check=<?php echo $row['id']?>" class = "btn btn-warning" name="check"><i class='bx  bx-check-circle'  style='color:#E65100'></i> </a>
+                    <a onclick="return confirm('Are you sure wanna delete this data?')" href="?page=tambah-transaction&delete=<?php echo $row['id']?>" class = "btn btn-danger" name="delete">Delete</a>
                 </td>
             </tr>
             <?php endforeach?>
