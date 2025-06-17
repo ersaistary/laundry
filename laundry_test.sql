@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 15, 2025 at 05:28 PM
+-- Generation Time: Jun 17, 2025 at 04:59 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 7.4.33
 
@@ -111,8 +111,9 @@ CREATE TABLE `trans_order` (
 --
 
 INSERT INTO `trans_order` (`id`, `id_customer`, `order_code`, `order_date`, `order_end_date`, `order_status`, `created_at`, `updated_at`, `deleted_at`, `order_pay`, `order_change`, `total`) VALUES
-(12, 1, 'ord1', '2025-06-15', NULL, 0, '2025-06-15 12:06:47', NULL, NULL, 50000, 45000, 5000),
-(13, 3, 'ord2', '2025-06-15', NULL, 0, '2025-06-15 12:07:55', NULL, NULL, 50000, 15000, 35000);
+(30, 3, 'ord1', '2025-06-17', '2025-06-17', 1, '2025-06-17 11:35:15', '2025-06-17 12:04:39', '2025-06-17 19:04:39', 0, 0, 15000),
+(31, 1, 'ord2', '2025-06-17', '2025-06-17', 1, '2025-06-17 11:36:42', '2025-06-17 14:00:56', NULL, 20000, 8000, 12000),
+(32, 1, 'ord3', '2025-06-17', NULL, 0, '2025-06-17 13:05:27', '2025-06-17 13:05:35', '2025-06-17 20:05:35', 0, 0, 5000);
 
 -- --------------------------------------------------------
 
@@ -130,6 +131,17 @@ CREATE TABLE `trans_order_detail` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updates_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `trans_order_detail`
+--
+
+INSERT INTO `trans_order_detail` (`id`, `id_order`, `id_service`, `qty`, `subtotal`, `notes`, `created_at`, `updates_at`) VALUES
+(14, 30, 1, 1, 5000.00, '', '2025-06-17 11:35:15', NULL),
+(15, 30, 3, 2, 10000.00, '', '2025-06-17 11:35:15', NULL),
+(16, 31, 1, 1, 5000.00, '', '2025-06-17 11:36:42', NULL),
+(17, 31, 4, 1, 7000.00, '', '2025-06-17 11:36:42', NULL),
+(18, 32, 1, 1, 5000.00, '', '2025-06-17 13:05:27', NULL);
 
 -- --------------------------------------------------------
 
@@ -260,13 +272,13 @@ ALTER TABLE `trans_laundry_pickup`
 -- AUTO_INCREMENT for table `trans_order`
 --
 ALTER TABLE `trans_order`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `trans_order_detail`
 --
 ALTER TABLE `trans_order_detail`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `type_of_service`

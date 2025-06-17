@@ -1,39 +1,11 @@
 <?php 
     $queryCustomer = mysqli_query($config, 
-    "SELECT 
-    trans_order.id,
-    trans_order.order_code,
-    trans_order.order_date,
-    trans_order.order_end_date,
-    trans_order.order_status,
-    trans_order.order_pay,
-    trans_order.order_change,
-    trans_order.total,
-    
-    customer.customer_name,
-    customer.phone,
-    customer.address,
-    
-    trans_order_detail.qty,
-    trans_order_detail.subtotal,
-    trans_order_detail.notes AS detail_notes,
-    
-    type_of_service.service_name,
-    type_of_service.price,
-    
-    trans_laundry_pickup.pickup_date,
-    trans_laundry_pickup.notes AS pickup_notes
-
+    "SELECT trans_order.*, customer.customer_name
     FROM trans_order
-
-    LEFT JOIN customer ON trans_order.id_customer = customer.id
-    LEFT JOIN trans_order_detail ON trans_order.id = trans_order_detail.id_order
-    LEFT JOIN type_of_service ON trans_order_detail.id_service = type_of_service.id
-    LEFT JOIN trans_laundry_pickup ON trans_order.id = trans_laundry_pickup.id_order
-
-    WHERE trans_order.deleted_at IS NULL;
+    LEFT JOIN customer ON customer.id = trans_order.id_customer
+    WHERE trans_order.deleted_at IS NULL
     ");
-    $rowCustomer = mysqli_fetch_all($queryCustomer, MYSQLI_ASSOC);    
+    $rowCustomer = mysqli_fetch_all($queryCustomer, MYSQLI_ASSOC);
 ?>
 <!-- Striped Rows -->
 <div class="card">
@@ -50,7 +22,6 @@
         <th>Order Code</th>
         <th>Order Date</th>
         <th>Order Status</th>
-        <th>Quantity</th>
         <th>Total</th>
         <th>Action</th>
         </tr>
@@ -63,13 +34,13 @@
                 <td><?= $row['order_code'] ?></td>
                 <td><?= $row['order_date'] ?></td>
                 <td><?= ($row['order_status'] == 0) ? "Transaksi Berhasil" : "Selesai" ?></td>
-                <td><?= $row['qty'] ?></td>
                 <td>Rp <?= $row['total'] ?></td>
                 <td>
-                    <a href="?page=detai-order&edit=<?php echo $row['id']?>" class = "btn btn-primary" name="detail">Detail</a>
-                    <a href="?page=tambah-transaction&check=<?php echo $row['id']?>" class = "btn btn-warning" name="check"><i class='bx  bx-check-circle'  style='color:#E65100'></i> </a>
+                    <a href="?page=detail-transaction&detail=<?php echo $row['id']?>" class = "btn btn-primary" name="detail">Detail</a>
+                    <a href="?page=pickup&id=<?php echo $row['id']?>" class = "btn btn-warning" name="check">Pickup</a>
                     <a onclick="return confirm('Are you sure wanna delete this data?')" href="?page=tambah-transaction&delete=<?php echo $row['id']?>" class = "btn btn-danger" name="delete">Delete</a>
                 </td>
+                <input type="hidden" name="id_order" id="modal_order_id" value="<?php $row['id'] ?>">
             </tr>
             <?php endforeach?>
     </tbody>
