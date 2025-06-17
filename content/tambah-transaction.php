@@ -1,13 +1,13 @@
 <?php
-$serviceId = $_GET['service'] ?? null;
+// $serviceId = $_GET['service'] ?? null;
 $price = 0;
  $customers = mysqli_query($config, "SELECT * FROM customer WHERE deleted_at IS NULL");
 
-if ($serviceId) {
-  $getPrice = mysqli_query($config, "SELECT price FROM type_of_service WHERE id = $serviceId");
-  $data = mysqli_fetch_assoc($getPrice);
-  $price = $data['price'] ?? 0;
-}
+// if ($serviceId) {
+//   $getPrice = mysqli_query($config, "SELECT price FROM type_of_service WHERE id = $serviceId");
+//   $data = mysqli_fetch_assoc($getPrice);
+//   $price = $data['price'] ?? 0;
+// }
 
 if(isset($_POST['submit'])){
     // ambil order kode terakhir
@@ -37,6 +37,9 @@ if(isset($_GET['check'])){
   $queryEdit = mysqli_query ($config, "UPDATE `trans_order` SET `order_end_date`= NOW(),`order_status`= 1 WHERE id = $id_user");
   header ("location=?page=transaction");
 }
+
+$queryService=mysqli_query($config, "SELECT * FROM type_of_service WHERE deleted_at IS NULL");
+$rowService=mysqli_fetch_all($queryService, MYSQLI_ASSOC);
 ?>
 
 <div class="col-xxl">
@@ -72,13 +75,13 @@ if(isset($_GET['check'])){
           </div>
         </div>
 
-        <!-- Quantity -->
+        <!-- Quantity
         <div class="row mb-3">
           <label class="col-sm-2 col-form-label">Quantity (grams)</label>
           <div class="col-sm-10">
             <input type="number" id="qty" name="qty" class="form-control" required>
           </div>
-        </div>
+        </div> -->
 
         <!-- Status -->
         <div class="row mb-3">
@@ -115,6 +118,28 @@ if(isset($_GET['check'])){
           </div>
         </div>
 
+        <!-- Add Transaction -->
+        <div align="right" class="mb-3">
+          <button type="button" class="btn btn-primary addTransaction" id="addTransaction">Add Transaction</button>
+        </div>
+        <div id="container">
+          <div class="row mb-3" id="newRow">
+            <label class="col-sm-1 col-form-label">Service</label>
+            <div class="col-sm-5">
+              <select name="service" id="service" class="form-control" required>
+                <option value="">Select Service</option>
+                <?php foreach($rowService as $key => $data):?>
+                  <option value="<?= $data['price']?>"><?= $data['service_name']?></option>
+                <?php endforeach?>
+              </select>
+            </div>
+            <label class="col-sm-1 col-form-label">Quantity (Kilo Grams)</label>
+            <div class="col-sm-5">
+              <input type="number" id="qty" name="qty" class="form-control" required>
+            </div>
+          </div>
+        </div>
+
         <!-- Submit -->
         <div class="row justify-content-end">
           <div class="col-sm-10">
@@ -128,7 +153,16 @@ if(isset($_GET['check'])){
 
 <!-- JS to Auto Calculate -->
 <script>
-  const price = <?= $price ?>;
+  const button = document.getElementById('addTransaction');
+  const container = document.getElementById('container');
+  const templateRow = document.getElementById('newRow');
+
+  button.addEventListener('click', function() {
+        const newRow = templateRow.cloneNode(true);
+        container.appendChild(newRow);
+    });
+
+  const price = document.getElementById('service');
   const qtyInput = document.getElementById('qty');
   const payInput = document.getElementById('order_pay');
   const totalInput = document.getElementById('total');
@@ -137,8 +171,9 @@ if(isset($_GET['check'])){
   function calculate() {
     const qty = parseFloat(qtyInput.value) || 0;
     const pay = parseFloat(payInput.value) || 0;
+    const servicePrice = parseFloat(price.value) || 0;
     const kilo = qty / 1000;
-    const total = Math.round(kilo * price);
+    const total = Math.round(kilo * servicePrice);
     const change = pay - total;
 
     totalInput.value = total;

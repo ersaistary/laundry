@@ -39,7 +39,7 @@
 <div class="card">
 <h5 class="card-header">Transaction Data</h5>
 <h5 align="right" class="me-3">
-    <a href="?page=select-service" class="btn btn-primary mb-3" >Add Transaction</a>
+    <a href="?page=tambah-transaction" class="btn btn-primary mb-3" >Add Transaction</a>
 </h5>
 <div class="table-responsive text-nowrap">
     <table class="table table-striped">
