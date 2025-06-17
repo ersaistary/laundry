@@ -1,41 +1,67 @@
 <?php
-// $serviceId = $_GET['service'] ?? null;
 $price = 0;
- $customers = mysqli_query($config, "SELECT * FROM customer WHERE deleted_at IS NULL");
+$customers = mysqli_query($config, "SELECT * FROM customer WHERE deleted_at IS NULL");
 
-// if ($serviceId) {
-//   $getPrice = mysqli_query($config, "SELECT price FROM type_of_service WHERE id = $serviceId");
-//   $data = mysqli_fetch_assoc($getPrice);
-//   $price = $data['price'] ?? 0;
-// }
 
-if(isset($_POST['submit'])){
-    // ambil order kode terakhir
-    $orderKode = mysqli_query($config, "SELECT order_code from trans_order WHERE order_code LIKE 'ord%' ORDER BY id DESC LIMIT 1");
-    $rowOrderCode= mysqli_fetch_assoc($orderKode);
+if (isset($_POST['submit'])) {
+    // Generate the next order code.
+    $orderKode = mysqli_query($config, "SELECT order_code FROM trans_order WHERE order_code LIKE 'ord%' ORDER BY id DESC LIMIT 1");
+    $rowOrderCode = mysqli_fetch_assoc($orderKode);
     $lastNum = 0;
     if ($rowOrderCode && isset($rowOrderCode['order_code'])) {
-        $lastNum = intval(substr($rowOrderCode['order_code'], 3)); // Strip "ord"
+      $lastNum = intval(substr($rowOrderCode['order_code'], 3)); // Strip "ord"
     }
-    $nextCode= 'ord' . ($lastNum + 1); 
+    $nextCode = 'ord' . ($lastNum + 1); 
 
     $id_customer = $_POST['id_customer'];
-    $order_date = $_POST['order_date'];
-    $qty = $_POST ['qty'];
-    $order_status= $_POST ['order_status'];
-    $total = $_POST['total'];
-    $order_pay = $_POST['order_pay'];
-    $order_change = $_POST['order_change'];
+    $order_date  = $_POST['order_date'];
+    $notes       = $_POST['notes'] ?? ''; 
 
-    $insertTransOrder = mysqli_query($config, "INSERT INTO trans_order( id_customer, order_code, order_date, order_status, order_pay, order_change, total) VALUES ('$id_customer','$nextCode','$order_date', '$order_status','$order_pay','$order_change', '$total')");
+    // Save the transaction order
+    $insertTransOrder = mysqli_query($config, "INSERT INTO trans_order (id_customer, order_code, order_date, order_status) VALUES ('$id_customer', '$nextCode', '$order_date', 0)");
+    
+    if ($insertTransOrder) {
+      $lastId = mysqli_insert_id($config);
+      
+      // These variables are arrays now—
+      $id_services = $_POST['id_service']; 
+      $qtys        = $_POST['qty'];
+      
+      for ($i = 0; $i < count($id_services); $i++) {
+        $service_id = $id_services[$i];
+        $qty = floatval($_POST['qty'][$i] ?? 0); // Default to 0 if not set
+        // $qty        = floatval($qtys[$i]);
+
+        // Query the price for the current service.
+        $selectPrice = mysqli_query($config, "SELECT price FROM type_of_service WHERE id = '$service_id'");
+        $rowPrice    = mysqli_fetch_assoc($selectPrice);
+        
+        // If the service is not found, you can continue or handle the error appropriately.
+        if (!$rowPrice) {
+            continue;
+        }
+        $price    = floatval($rowPrice['price']);
+        $subtotal = $qty / 1000 * $price;
+        
+        // Insert each service order detail.
+        $insertOrderDetail = mysqli_query(
+          $config, 
+          "INSERT INTO trans_order_detail (id_order, id_service, qty, subtotal, notes) 
+           VALUES ('$lastId', '$service_id', '$qty', '$subtotal', '$notes')"
+        );
+      }
+      
+      header("location:?page=transaction&transaction=success");
+    }
 }
+
 
 if(isset($_GET['check'])){
   $id_user = $_GET['check'];
   $selectEdit = mysqli_query($config, "SELECT * FROM trans_order WHERE id = $id_user");
   $rowEdit = mysqli_fetch_assoc($selectEdit);
   $queryEdit = mysqli_query ($config, "UPDATE `trans_order` SET `order_end_date`= NOW(),`order_status`= 1 WHERE id = $id_user");
-  header ("location=?page=transaction");
+  header ("location:?page=transaction");
 }
 
 $queryService=mysqli_query($config, "SELECT * FROM type_of_service WHERE deleted_at IS NULL");
@@ -84,7 +110,7 @@ $rowService=mysqli_fetch_all($queryService, MYSQLI_ASSOC);
         </div> -->
 
         <!-- Status -->
-        <div class="row mb-3">
+        <!-- <div class="row mb-3">
           <label class="col-sm-2 col-form-label">Order Status</label>
           <div class="col-sm-10">
             <select name="order_status" class="form-control" required>
@@ -92,31 +118,39 @@ $rowService=mysqli_fetch_all($queryService, MYSQLI_ASSOC);
               <option value="1">Selesai</option>
             </select>
           </div>
-        </div>
+        </div> -->
 
         <!-- Total (auto from qty / 1000 * price) -->
-        <div class="row mb-3">
+        <!-- <div class="row mb-3">
           <label class="col-sm-2 col-form-label">Total</label>
           <div class="col-sm-10">
             <input type="number" id="total" name="total" class="form-control" readonly required>
           </div>
-        </div>
+        </div> -->
 
         <!-- Payment -->
-        <div class="row mb-3">
+        <!-- <div class="row mb-3">
           <label class="col-sm-2 col-form-label">Order Pay</label>
           <div class="col-sm-10">
             <input type="number" id="order_pay" name="order_pay" class="form-control" required>
           </div>
-        </div>
+        </div> -->
 
         <!-- Change -->
-        <div class="row mb-3">
+        <!-- <div class="row mb-3">
           <label class="col-sm-2 col-form-label">Change</label>
           <div class="col-sm-10">
             <input type="number" id="order_change" name="order_change" class="form-control" readonly required>
           </div>
-        </div>
+        </div> -->
+
+        <!-- Notes -->
+        <div class="row mb-3">
+          <label class="col-sm-2 col-form-label">Notes</label>
+          <div class="col-sm-10">
+            <textarea name="notes" id="notes" name="notes" class="form-control"></textarea>
+          </div>
+        </div> 
 
         <!-- Add Transaction -->
         <div align="right" class="mb-3">
@@ -124,25 +158,35 @@ $rowService=mysqli_fetch_all($queryService, MYSQLI_ASSOC);
         </div>
         <div id="container">
           <div class="row mb-3" id="newRow">
-            <label class="col-sm-1 col-form-label">Service</label>
-            <div class="col-sm-5">
-              <select name="service" id="service" class="form-control" required>
-                <option value="">Select Service</option>
-                <?php foreach($rowService as $key => $data):?>
-                  <option value="<?= $data['price']?>"><?= $data['service_name']?></option>
-                <?php endforeach?>
-              </select>
-            </div>
-            <label class="col-sm-1 col-form-label">Quantity (Kilo Grams)</label>
-            <div class="col-sm-5">
-              <input type="number" id="qty" name="qty" class="form-control" required>
-            </div>
+            <table id=myTable>
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Quantity</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <select name="id_service[]" class="service form-control" required>
+                      <option value="">Select Service</option>
+                      <?php foreach($rowService as $key => $data): ?>
+                        <option value="<?= $data['id'] ?>"><?= $data['service_name'] ?></option>
+                      <?php endforeach ?>
+                    </select>
+                  </td>
+                  <td>
+                    <input type="number" name="qty[]" class="qty form-control" required>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
         <!-- Submit -->
-        <div class="row justify-content-end">
-          <div class="col-sm-10">
+        <div class="row">
+          <div class="col-sm-3 mt-2">
             <button type="submit" class="btn btn-primary" name="submit">Submit Order</button>
           </div>
         </div>
@@ -153,33 +197,25 @@ $rowService=mysqli_fetch_all($queryService, MYSQLI_ASSOC);
 
 <!-- JS to Auto Calculate -->
 <script>
-  const button = document.getElementById('addTransaction');
-  const container = document.getElementById('container');
-  const templateRow = document.getElementById('newRow');
+// Grab the necessary elements.
+const addTransactionBtn = document.getElementById('addTransaction');
+const tbody = document.querySelector('#myTable tbody');
 
-  button.addEventListener('click', function() {
-        const newRow = templateRow.cloneNode(true);
-        container.appendChild(newRow);
-    });
+addTransactionBtn.addEventListener('click', function() {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>
+      <select name="id_service[]" class="service form-control" required>
+        <option value="">Select Service</option>
+         <?php foreach($rowService as $data): ?>
+           <option value="<?= $data['id'] ?>"><?= $data['service_name'] ?></option>
+         <?php endforeach ?>
+      </select>
+    </td>
+    <td>
+      <input type="number" name="qty[]" class="qty form-control" required>
+    </td>`;
+  tbody.appendChild(tr);
+});
 
-  const price = document.getElementById('service');
-  const qtyInput = document.getElementById('qty');
-  const payInput = document.getElementById('order_pay');
-  const totalInput = document.getElementById('total');
-  const changeInput = document.getElementById('order_change');
-
-  function calculate() {
-    const qty = parseFloat(qtyInput.value) || 0;
-    const pay = parseFloat(payInput.value) || 0;
-    const servicePrice = parseFloat(price.value) || 0;
-    const kilo = qty / 1000;
-    const total = Math.round(kilo * servicePrice);
-    const change = pay - total;
-
-    totalInput.value = total;
-    changeInput.value = change >= 0 ? change : 0;
-  }
-
-  qtyInput.addEventListener('input', calculate);
-  payInput.addEventListener('input', calculate);
 </script>
