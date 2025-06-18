@@ -1,11 +1,18 @@
 <?php 
     if(isset($_POST['pay'])){
         $payment = $_POST['payment'];
-        $id_customer = isset($_GET['id'])? $_GET['id']:'';
-        $selectTotal= mysqli_query($config, "SELECT total FROM `trans_order` WHERE id=$id_customer");
+        $id_order = isset($_GET['id'])? $_GET['id']:'';
+        $selectTotal= mysqli_query($config, "SELECT total FROM `trans_order` WHERE id=$id_order");
         $row = mysqli_fetch_assoc($selectTotal);
         $order_change = $payment - $row['total'];
-        $queryUpdate = mysqli_query($config, "UPDATE `trans_order` SET order_pay ='$payment', order_change ='$order_change' WHERE id=$id_customer");
+        $queryUpdate = mysqli_query($config, "UPDATE `trans_order` SET order_pay ='$payment', order_change ='$order_change', order_status=1, order_end_date = NOW(), deleted_at = NOW() WHERE id=$id_order");
+        if($queryUpdate){
+          $id_customer=mysqli_query($config, "SELECT id_customer FROM trans_order WHERE id = $id_order AND deleted_at IS NULL");
+          $rowCustomer = mysqli_fetch_assoc($id_customer);
+          $id_customer = $rowCustomer['id_customer'];
+          $notes = $_POST['notes'];
+          $insert = mysqli_query($config, "INSERT INTO trans_laundry_pickup (id_order, id_customer, pickup_date, notes) VALUES ('$id_order', '$id_customer', NOW(), '$notes')");
+        }
         header("location:?page=transaction&payment=success");
         
     }
@@ -83,14 +90,11 @@
               <form id="formAuthentication" class="mb-3" method="POST">
                 <div class="mb-3">
                   <label for="payment" class="form-label">Payment</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="payment"
-                    name="payment"
-                    placeholder="Enter payment amount"
-                    autofocus
-                  />
+                  <input type="text" class="form-control" id="payment" name="payment" placeholder="Enter payment amount" autofocus required/>
+                </div>
+                <div class="mb-3">
+                  <label for="notes" class="form-label">Notes</label>
+                  <input type="text" class="form-control" id="notes" name="notes" placeholder="Enter notes" autofocus/>
                 </div>
                 <div class="mb-3">
                   <button class="btn btn-primary" type="submit" name="pay">Pay</button>

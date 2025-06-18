@@ -88,9 +88,17 @@
               <span class="menu-header-text">Transaction</span>
             </li>
 
-            <!-- New Transaction -->
+            <!-- Transaction -->
             <li class="menu-item">
               <a href="?page=transaction" class="menu-link">
+                <i class="menu-icon tf-icons bx  bx-user-circle"></i>
+                <div data-i18n="Analytics">Transaction</div>
+              </a>
+            </li>
+
+            <!-- New Transaction -->
+            <li class="menu-item">
+              <a href="?page=tambah-transaction" class="menu-link">
                 <i class="menu-icon tf-icons bx  bx-user-circle"></i>
                 <div data-i18n="Analytics">New Transaction</div>
               </a>

@@ -31,7 +31,7 @@ if (isset($_POST['submit'])) {
       $total= 0;
       for ($i = 0; $i < count($id_services); $i++) {
         $service_id = $id_services[$i];
-        $qty = floatval($_POST['qty'][$i])/1000; // Convert grams to kg
+        $qty = floatval($_POST['qty'][$i])*1000; // Convert grams to kg
         
         $selectPrice = mysqli_query($config, "SELECT price FROM type_of_service WHERE id = '$service_id'");
         $rowPrice    = mysqli_fetch_assoc($selectPrice);
@@ -39,7 +39,8 @@ if (isset($_POST['submit'])) {
         if (!$rowPrice) {
           continue;
         }
-        $price    = floatval($rowPrice['price']);
+        $price    = floatval($rowPrice['price']/1000);
+        // print_r($price); die;
         $subtotal = $qty* $price;
         $total+= $subtotal;
         

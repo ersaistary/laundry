@@ -2,65 +2,25 @@
 $price = 0;
 $customers = mysqli_query($config, "SELECT * FROM customer WHERE deleted_at IS NULL");
 
-if (isset($_GET['delete'])) {
-    $id_transaction = $_GET['delete'];
-    $queryDelete = mysqli_query($config, "UPDATE trans_order SET deleted_at = NOW() WHERE id = $id_transaction");
-    header("location:?page=transaction&hapus=" . ($queryDelete? "berhasil" : "gagal"));
-}
-
-if (isset($_POST['submit'])) {
-    // Generate the next order code.
-    $orderKode = mysqli_query($config, "SELECT order_code FROM trans_order WHERE order_code LIKE 'ord%' ORDER BY id DESC LIMIT 1");
-    $rowOrderCode = mysqli_fetch_assoc($orderKode);
-    $lastNum = 0;
-    if ($rowOrderCode && isset($rowOrderCode['order_code'])) {
-      $lastNum = intval(substr($rowOrderCode['order_code'], 3)); // Strip "ord"
-    }
-    $nextCode = 'ord' . ($lastNum + 1); 
-
-    $id_customer = $_POST['id_customer'];
-    $order_date  = $_POST['order_date'];
-    $notes       = $_POST['notes'] ?? ''; 
-
-    $insertTransOrder = mysqli_query($config, "INSERT INTO trans_order (id_customer, order_code, order_date, order_status) VALUES ('$id_customer', '$nextCode', '$order_date', 0)");
-    
-    if ($insertTransOrder) {
-      $lastId = mysqli_insert_id($config);
-      $id_services = $_POST['id_service']; 
-      $qtys        = floatval($_POST['qty']);
-      $total= 0;
-      for ($i = 0; $i < count($id_services); $i++) {
-        $service_id = $id_services[$i];
-        $qty = floatval($_POST['qty'][$i])/1000; // Convert grams to kg
-        
-        $selectPrice = mysqli_query($config, "SELECT price FROM type_of_service WHERE id = '$service_id'");
-        $rowPrice    = mysqli_fetch_assoc($selectPrice);
-        
-        if (!$rowPrice) {
-          continue;
-        }
-        $price    = floatval($rowPrice['price']);
-        $subtotal = $qty* $price;
-        $total+= $subtotal;
-        
-        $insertOrderDetail = mysqli_query($config, "INSERT INTO trans_order_detail (id_order, id_service, qty, subtotal, notes) VALUES ('$lastId', '$service_id', '$qty', '$subtotal', '$notes')");
-      }
-    $updateTransOrder = mysqli_query($config, "UPDATE `trans_order` SET `total`='$total' WHERE id = $lastId");
-
-      
-      header("location:?page=transaction&transaction=success");
-    }
-}
-
 $queryService=mysqli_query($config, "SELECT * FROM type_of_service WHERE deleted_at IS NULL");
 $rowService=mysqli_fetch_all($queryService, MYSQLI_ASSOC);
 
+$id_user = $_GET['detail'];
+$selectDetail = mysqli_query($config, "SELECT * FROM trans_order WHERE id = $id_user");
+$rowDetail = mysqli_fetch_assoc($selectDetail);
 if (isset($_GET['detail'])) {
-    $id_user = $_GET['detail'];
     // print_r($id_user); die;
-    $selectDetail = mysqli_query($config, "SELECT * FROM trans_order WHERE id = $id_user");
-    $rowDetail = mysqli_fetch_assoc($selectDetail);
+    $id_order = $rowDetail['id'];
+    $selectService= mysqli_query($config, "SELECT trans_order_detail.*, type_of_service.service_name FROM trans_order_detail 
+    LEFT JOIN type_of_service ON type_of_service.id = trans_order_detail.id_service 
+    WHERE id_order = $id_order");
+    $rowSelectService = mysqli_fetch_all($selectService, MYSQLI_ASSOC);
 }
+
+if(isset($_POST['back'])){
+  header('location:?page=transaction');
+}
+
 ?>
 
 <div class="col-xxl">
@@ -75,16 +35,15 @@ if (isset($_GET['detail'])) {
         <label class="col-sm-2 col-form-label">Customer</label>
         <div class="col-sm-10">
             <select name="id_customer" class="form-control" required <?php if (isset($_GET['detail'])) echo 'disabled'; ?>>
-            <option value="">Select Customer</option>
-            <?php
-            while ($cust = mysqli_fetch_assoc($customers)) :
-            ?>
-                <option value="<?= $cust['id'] ?>"
-                <?= (isset($rowDetail) && $rowDetail['id_customer'] == $cust['id']) ? 'selected' : '' ?>>
-                <?= $cust['customer_name'] ?> - <?= $cust['phone'] ?>
-                </option>
-            <?php endwhile; ?>
-            </select>
+              <option value="">Select Customer</option>
+              <?php while ($cust = mysqli_fetch_assoc($customers)) : ?>
+                  <option value="<?= $cust['id'] ?>" 
+                      <?= (isset($rowDetail) && ((int)$rowDetail['id_customer'] === (int)$cust['id'])) ? 'selected' : '' ?>>
+                      <?= $cust['customer_name'] ?> - <?= $cust['phone'] ?>
+                  </option>
+              <?php endwhile; ?>
+          </select>
+
         </div>
         </div>
 
@@ -95,94 +54,65 @@ if (isset($_GET['detail'])) {
             <input type="date" name="order_date" class="form-control" value="<?= $rowDetail['order_date'] ?>" readonly>
           </div>
         </div>
-
-        <!-- Quantity -->
-        <!-- <div class="row mb-3">
-          <label class="col-sm-2 col-form-label">Quantity (grams)</label>
-          <div class="col-sm-10">
-            <input type="number" id="qty" name="qty" class="form-control" value="<?= $rowDetail['qty'] ?>">
-          </div>
-        </div> -->
-
+        
         <!-- Status -->
         <div class="row mb-3">
           <label class="col-sm-2 col-form-label">Order Status</label>
           <div class="col-sm-10">
-            <select name="order_status" class="form-control" required>
-              <option value="0">Berlangsung</option>
-              <option value="1">Selesai</option>
+            <select name="order_status" class="form-control" required <?php if (isset($_GET['detail'])) echo 'disabled'; ?>>
+                <option value="0" <?= (isset($rowDetail) && ((int)$rowDetail['order_status'] === 0)) ? 'selected' : '' ?>>Berlangsung</option>
+                <option value="1" <?= (isset($rowDetail) && ((int)$rowDetail['order_status'] === 1)) ? 'selected' : '' ?>>Selesai</option>
             </select>
+
           </div>
         </div>
+        
+        <?php if(isset($rowDetail['order_status']) && $rowDetail['order_status'] == 1): ?>
+            <!-- Order Date -->
+            <div class="row mb-3">
+              <label class="col-sm-2 col-form-label">Order Date</label>
+              <div class="col-sm-10">
+                <input type="date" name="order_date" class="form-control" value="<?= $rowDetail['order_date'] ?>" readonly>
+              </div>
+            </div>
+        <?php endif; ?>
 
-        <!-- Total (auto from qty / 1000 * price) -->
-        <!-- <div class="row mb-3">
-          <label class="col-sm-2 col-form-label">Total</label>
-          <div class="col-sm-10">
-            <input type="number" id="total" name="total" class="form-control" readonly required>
-          </div>
-        </div> -->
-
-        <!-- Payment -->
-        <!-- <div class="row mb-3">
-          <label class="col-sm-2 col-form-label">Order Pay</label>
-          <div class="col-sm-10">
-            <input type="number" id="order_pay" name="order_pay" class="form-control" required>
-          </div>
-        </div> -->
-
-        <!-- Change -->
-        <!-- <div class="row mb-3">
-          <label class="col-sm-2 col-form-label">Change</label>
-          <div class="col-sm-10">
-            <input type="number" id="order_change" name="order_change" class="form-control" readonly required>
-          </div>
-        </div> -->
-
-        <!-- Notes -->
-        <!-- <div class="row mb-3">
-          <label class="col-sm-2 col-form-label">Notes</label>
-          <div class="col-sm-10">
-            <textarea name="notes" id="notes" name="notes" class="form-control"><?= $rowDetail['notes'] ?></textarea>
-          </div>
-        </div>  -->
 
         <!-- Add Transaction -->
-        <div align="right" class="mb-3">
-          <button type="button" class="btn btn-primary addTransaction" id="addTransaction">Add Transaction</button>
-        </div>
+          
         <div id="container">
           <div class="row mb-3" id="newRow">
-            <table id=myTable>
+            <table id=myTable class="table table-stripped">
               <thead>
                 <tr>
                   <th>Service</th>
                   <th>Quantity</th>
+                  <th>Sub Total</th>
                 </tr>
               </thead>
               <tbody>
+                <?php foreach($rowSelectService as $data): ?>
                 <tr>
-                  <td>
-                    <select name="id_service[]" class="service form-control" required>
-                      <option value="">Select Service</option>
-                      <?php foreach($rowService as $key => $data): ?>
-                        <option value="<?= $data['id'] ?>"><?= $data['service_name'] ?></option>
-                      <?php endforeach ?>
-                    </select>
-                  </td>
-                  <td>
-                    <input type="number" step="any" name="qty[]" class="qty form-control" required>
-                  </td>
+                  <td><?= $data['service_name']?></td>
+                  <td><?= $data['qty']/1000 . " Kg"?></td>
+                  <td><?= "Rp " . $data['subtotal']/1000?></td>
                 </tr>
+                <?php endforeach?>
               </tbody>
             </table>
           </div>
+
+          <div class="d-flex align-items-center justify-content-end">
+            <label class="form-label me-2 mb-0">Total</label>
+            <input type="text" class="form-control form-control" style="width: 250px;" readonly value="<?= "Rp " . $rowDetail['total']/1000 ?>">
+          </div>
         </div>
+
 
         <!-- Submit -->
         <div class="row">
           <div class="col-sm-3 mt-2">
-            <button type="submit" class="btn btn-primary" name="submit">Submit Order</button>
+            <button type="submit" class="btn btn-primary" name="back">Back</button>
           </div>
         </div>
       </form>
@@ -190,9 +120,7 @@ if (isset($_GET['detail'])) {
   </div>
 </div>
 
-<!-- JS to Auto Calculate -->
 <script>
-// Grab the necessary elements.
 const addTransactionBtn = document.getElementById('addTransaction');
 const tbody = document.querySelector('#myTable tbody');
 

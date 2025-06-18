@@ -3,17 +3,22 @@
     "SELECT trans_order.*, customer.customer_name
     FROM trans_order
     LEFT JOIN customer ON customer.id = trans_order.id_customer
-    WHERE trans_order.deleted_at IS NULL
+    WHERE trans_order.deleted_at IS NOT NULL
     ");
     $rowCustomer = mysqli_fetch_all($queryCustomer, MYSQLI_ASSOC);
+    
+    if(isset($_POST['back'])){
+        header('location:?page=transaction');
+    }
 ?>
 <!-- Striped Rows -->
 <div class="card">
 <h5 class="card-header">On Going Transaction</h5>
-<h5 align="right" class="me-3">
-    <a href="?page=tambah-transaction" class="btn btn-primary mb-3" >Add Transaction</a>
-    <a href="?page=transaction-history" class="btn btn-warning mb-3" >Transaction History</a>
-</h5>
+<form action="" method="post">
+    <h5 align="right" class="me-3">
+        <button type="submit" class="btn btn-primary" name="back">Back</button>
+    </h5>
+</form>
 <div class="table-responsive text-nowrap">
     <table class="table table-striped">
     <thead>
@@ -38,8 +43,6 @@
                 <td>Rp <?= $row['total']/1000 ?></td>
                 <td>
                     <a href="?page=detail-transaction&detail=<?php echo $row['id']?>" class = "btn btn-primary" name="detail">Detail</a>
-                    <a href="?page=pickup&id=<?php echo $row['id']?>" class = "btn btn-warning" name="check">Pickup</a>
-                    <a onclick="return confirm('Are you sure wanna delete this data?')" href="?page=tambah-transaction&delete=<?php echo $row['id']?>" class = "btn btn-danger" name="delete">Delete</a>
                 </td>
                 <input type="hidden" name="id_order" id="modal_order_id" value="<?php $row['id'] ?>">
             </tr>
