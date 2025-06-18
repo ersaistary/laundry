@@ -31,21 +31,20 @@ if (isset($_POST['submit'])) {
       $total= 0;
       for ($i = 0; $i < count($id_services); $i++) {
         $service_id = $id_services[$i];
-        $qty = floatval($_POST['qty'][$i] ?? 0);
-
+        $qty = floatval($_POST['qty'][$i])/1000; // Convert grams to kg
+        
         $selectPrice = mysqli_query($config, "SELECT price FROM type_of_service WHERE id = '$service_id'");
         $rowPrice    = mysqli_fetch_assoc($selectPrice);
-
+        
         if (!$rowPrice) {
-            continue;
+          continue;
         }
         $price    = floatval($rowPrice['price']);
-        $subtotal = $qty / 1000 * $price;
+        $subtotal = $qty* $price;
         $total+= $subtotal;
         
         $insertOrderDetail = mysqli_query($config, "INSERT INTO trans_order_detail (id_order, id_service, qty, subtotal, notes) VALUES ('$lastId', '$service_id', '$qty', '$subtotal', '$notes')");
       }
-      // print_r($total); die;
     $updateTransOrder = mysqli_query($config, "UPDATE `trans_order` SET `total`='$total' WHERE id = $lastId");
 
       
@@ -63,7 +62,7 @@ $rowService=mysqli_fetch_all($queryService, MYSQLI_ASSOC);
       <h5 class="mb-0">New Transaction</h5>
     </div>
     <div class="card-body">
-      <form method="POST">
+      <form method="POST"> 
         <!-- Customer Select Dropdown -->
         <div class="row mb-3">
         <label class="col-sm-2 col-form-label">Customer</label>

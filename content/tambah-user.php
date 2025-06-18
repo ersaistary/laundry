@@ -46,13 +46,15 @@ if (isset($_POST['name'])) {
     </div>
     <div class="card-body">
       <form method="POST">
+
         <div class="row mb-3">
-          <label class="col-sm-2 col-form-label">Name</label>
+          <label class="col-sm-2 col-form-label" >Name</label>
           <div class="col-sm-10">
             <input type="text" name="name" class="form-control" placeholder="John Doe"
               value="<?= isset($rowEdit) ? $rowEdit['name'] : '' ?>" required>
           </div>
         </div>
+
         <div class="row mb-3">
           <label class="col-sm-2 col-form-label">Email</label>
           <div class="col-sm-10">
@@ -60,6 +62,7 @@ if (isset($_POST['name'])) {
               value="<?= isset($rowEdit) ? $rowEdit['email'] : '' ?>" required>
           </div>
         </div>
+
         <div class="row mb-3">
           <label class="col-sm-2 col-form-label">Password</label>
           <div class="col-sm-10">
@@ -67,6 +70,7 @@ if (isset($_POST['name'])) {
               placeholder="<?= isset($_GET['edit']) ? 'Leave blank to keep current password' : 'Password' ?>">
           </div>
         </div>
+
         <div class="row mb-3">
           <label class="col-sm-2 col-form-label">Level</label>
           <div class="col-sm-10">
@@ -83,13 +87,15 @@ if (isset($_POST['name'])) {
             </select>
           </div>
         </div>
+
         <div class="row justify-content-end">
-          <div class="col-sm-10">
+          <div class="col-sm-10" align="right">
             <button type="submit" class="btn btn-primary">
               <?= isset($_GET['edit']) ? "Update" : "Submit" ?>
             </button>
           </div>
         </div>
+
       </form>
     </div>
   </div>
