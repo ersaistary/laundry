@@ -1,21 +1,46 @@
 <?php 
-    if(isset($_POST['pay'])){
-        $payment = $_POST['payment'];
-        $id_order = isset($_GET['id'])? $_GET['id']:'';
-        $selectTotal= mysqli_query($config, "SELECT total FROM `trans_order` WHERE id=$id_order");
-        $row = mysqli_fetch_assoc($selectTotal);
-        $order_change = $payment - $row['total'];
-        $queryUpdate = mysqli_query($config, "UPDATE `trans_order` SET order_pay ='$payment', order_change ='$order_change', order_status=1, order_end_date = NOW(), deleted_at = NOW() WHERE id=$id_order");
-        if($queryUpdate){
-          $id_customer=mysqli_query($config, "SELECT id_customer FROM trans_order WHERE id = $id_order AND deleted_at IS NULL");
-          $rowCustomer = mysqli_fetch_assoc($id_customer);
-          $id_customer = $rowCustomer['id_customer'];
-          $notes = $_POST['notes'];
-          $insert = mysqli_query($config, "INSERT INTO trans_laundry_pickup (id_order, id_customer, pickup_date, notes) VALUES ('$id_order', '$id_customer', NOW(), '$notes')");
-        }
-        header("location:?page=transaction&payment=success");
-        
+    if (isset($_POST['pay'])) {
+    // Retrieve payment and order ID
+    $payment = ($_POST['payment']*1000);
+    $id_order = isset($_GET['id']) ? $_GET['id'] : '';
+    
+    // Validate order id
+    if (empty($id_order)) {
+        die("Error: Order ID is missing.");
     }
+    
+    // Fetch total and customer ID at the same time
+    $selectTotal = mysqli_query($config, "SELECT total, id_customer FROM trans_order WHERE id = $id_order");
+    if (!$selectTotal) {
+        die("Error: Query failed.");
+    }
+    $row = mysqli_fetch_assoc($selectTotal);
+    if (!$row) {
+        die("Error: Order not found.");
+    }
+    
+    // Use the fetched values
+    $total = $row['total'];
+    $id_customer = $row['id_customer'];
+    
+    // Calculate the change in payment
+    $order_change = $payment - $total;
+    
+    // Update the order record (this sets deleted_at to NOW())
+    $queryUpdate = mysqli_query($config, "UPDATE trans_order SET order_pay = '$payment', order_change = '$order_change', order_status = 1, order_end_date = NOW(), deleted_at = NOW() WHERE id = $id_order");
+    if ($queryUpdate) {
+        // Sanitize notes input
+        $notes = isset($_POST['notes']) ? $_POST['notes'] : '';
+        
+        // Insert the pickup record using the previously fetched customer ID
+        $insert = mysqli_query($config, "INSERT INTO trans_laundry_pickup (id_order, id_customer, pickup_date, notes) VALUES ('$id_order', '$id_customer', NOW(), '$notes')");
+        if (!$insert) {
+            die("Error: Could not insert pickup record.");
+        }
+    }
+    header("Location: ?page=transaction&payment=success");
+}
+
 ?>
 
 <div class="container-xxl">

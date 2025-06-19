@@ -26,7 +26,7 @@ if(isset($_POST['back'])){
 <div class="col-xxl">
   <div class="card mb-4">
     <div class="card-header">
-      <h5 class="mb-0">New Transaction</h5>
+      <h5 class="mb-0">Transaction Detail</h5>
     </div>
     <div class="card-body">
       <form method="POST"> 
@@ -68,11 +68,11 @@ if(isset($_POST['back'])){
         </div>
         
         <?php if(isset($rowDetail['order_status']) && $rowDetail['order_status'] == 1): ?>
-            <!-- Order Date -->
+            <!-- Order End Date -->
             <div class="row mb-3">
-              <label class="col-sm-2 col-form-label">Order Date</label>
+              <label class="col-sm-2 col-form-label">Order End Date</label>
               <div class="col-sm-10">
-                <input type="date" name="order_date" class="form-control" value="<?= $rowDetail['order_date'] ?>" readonly>
+                <input type="date" name="order_end_date" class="form-control" value="<?= $rowDetail['order_end_date'] ?>" readonly>
               </div>
             </div>
         <?php endif; ?>
@@ -102,10 +102,16 @@ if(isset($_POST['back'])){
             </table>
           </div>
 
-          <div class="d-flex align-items-center justify-content-end">
+          <div class="d-flex align-items-center justify-content-end mb-2">
             <label class="form-label me-2 mb-0">Total</label>
             <input type="text" class="form-control form-control" style="width: 250px;" readonly value="<?= "Rp " . $rowDetail['total']/1000 ?>">
           </div>
+          <?php if(isset($rowDetail['order_status']) && $rowDetail['order_status'] == 1): ?>
+          <div class="d-flex align-items-center justify-content-end mb-2">
+            <label class="form-label me-2 mb-0">Change</label>
+            <input type="text" class="form-control form-control" style="width: 250px;" readonly value="<?= "Rp " . $rowDetail['order_change']/1000 ?>">
+          </div>
+          <?php endif; ?>
         </div>
 
 
