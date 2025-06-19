@@ -1,0 +1,30 @@
+<style>
+@media print {
+  body {
+    font-family: monospace;
+    font-size: 12px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .receipt {
+    width: 58mm;
+    margin: auto;
+    padding: 10px;
+  }
+
+  table, th, td {
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 2px 0;
+  }
+
+  button, .navbar, footer {
+    display: none !important;
+  }
+}
+</style>

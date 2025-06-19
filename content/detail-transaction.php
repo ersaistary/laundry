@@ -29,7 +29,7 @@ if(isset($_POST['back'])){
     </div>
     <div class="card-body">
       <form method="POST"> 
-        <div class="row">
+        <div class="row" align="right">
           <div class="col">
             <?php if(isset($rowDetail['order_status']) && $rowDetail['order_status'] == 1): ?>
               <a href="?page=print&print=<?= $rowDetail['id']?>" class="btn btn-primary">Print</a>
@@ -78,11 +78,7 @@ if(isset($_POST['back'])){
             <div class="row mb-3">
               <label class="col-sm-2 col-form-label">Order End Date</label>
               <div class="col-sm-10">
-<<<<<<< Updated upstream
                 <input type="date" name="order_end_date" class="form-control" value="<?= $rowDetail['order_end_date'] ?>" readonly>
-=======
-                <input type="date" name="order_date" class="form-control" value="<?= $rowDetail['order_end_date'] ?>" readonly>
->>>>>>> Stashed changes
               </div>
             </div>
         <?php endif; ?>
