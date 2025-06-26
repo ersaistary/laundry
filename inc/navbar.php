@@ -1,3 +1,13 @@
+<?php 
+  $id = $_SESSION['ID_USER'] ?? '';
+  $userQuery = mysqli_query($config, "SELECT user.*, level.level_name 
+  FROM USER 
+  LEFT JOIN level ON level.id = user.id_level
+  WHERE user.id = $id");
+  $rowUser= mysqli_fetch_assoc($userQuery);
+  // print_r($rowUser); die;
+?>
+          
           <!-- Navbar -->
 
           <nav
@@ -17,7 +27,7 @@
                 <li class="nav-item navbar-dropdown dropdown-user dropdown">
                   <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online">
-                      <img src="template/assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                      <i class="menu-icon tf-icons bx  bx-user-circle" style="font-size: 40px;"></i>
                     </div>
                   </a>
                   <ul class="dropdown-menu dropdown-menu-end">
@@ -26,12 +36,12 @@
                         <div class="d-flex">
                           <div class="flex-shrink-0 me-3">
                             <div class="avatar avatar-online">
-                              <img src="template/assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                              <i class="menu-icon tf-icons bx  bx-user-circle" style="font-size: 40px;"></i>
                             </div>
                           </div>
                           <div class="flex-grow-1">
-                            <span class="fw-semibold d-block">John Doe</span>
-                            <small class="text-muted">Admin</small>
+                            <span class="fw-semibold d-block"><?= $rowUser['name'] ?></span>
+                            <small class="text-muted"><?= $rowUser['level_name']?></small>
                           </div>
                         </div>
                       </a>
@@ -40,31 +50,7 @@
                       <div class="dropdown-divider"></div>
                     </li>
                     <li>
-                      <a class="dropdown-item" href="#">
-                        <i class="bx bx-user me-2"></i>
-                        <span class="align-middle">My Profile</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a class="dropdown-item" href="#">
-                        <i class="bx bx-cog me-2"></i>
-                        <span class="align-middle">Settings</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a class="dropdown-item" href="#">
-                        <span class="d-flex align-items-center align-middle">
-                          <i class="flex-shrink-0 bx bx-credit-card me-2"></i>
-                          <span class="flex-grow-1 align-middle">Billing</span>
-                          <span class="flex-shrink-0 badge badge-center rounded-pill bg-danger w-px-20 h-px-20">4</span>
-                        </span>
-                      </a>
-                    </li>
-                    <li>
-                      <div class="dropdown-divider"></div>
-                    </li>
-                    <li>
-                      <a class="dropdown-item" href="auth-login-basic.html">
+                      <a class="dropdown-item" href="keluar.php">
                         <i class="bx bx-power-off me-2"></i>
                         <span class="align-middle">Log Out</span>
                       </a>

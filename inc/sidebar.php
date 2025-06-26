@@ -65,7 +65,7 @@
           </div>
 
           <div class="menu-inner-shadow"></div>
-
+ 
           <ul class="menu-inner py-1">
             <?php if ($_SESSION['ID_USER'] == '1' || $_SESSION['ID_USER'] == '3'): ?>
             <!-- User -->

@@ -1,4 +1,10 @@
 <?php
+
+    if (isset($_GET['delete'])) {
+    $id_user = $_GET['delete'];
+    $queryDelete = mysqli_query($config, "DELETE FROM trans_order WHERE id = $id_user");
+    header("location:?page=user&hapus=" . ($queryDelete ? "berhasil" : "gagal"));
+    }
 $price = 0;
 $customers = mysqli_query($config, "SELECT * FROM customer WHERE deleted_at IS NULL");
 
@@ -149,9 +155,10 @@ $rowService=mysqli_fetch_all($queryService, MYSQLI_ASSOC);
           <div class="row mb-3" id="newRow">
             <table id=myTable>
               <thead>
-                <tr>
+                <tr class="text-center">
                   <th>Service</th>
                   <th>Quantity</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -166,6 +173,9 @@ $rowService=mysqli_fetch_all($queryService, MYSQLI_ASSOC);
                   </td>
                   <td>
                     <input type="number" step="any" name="qty[]" class="qty form-control" required>
+                  </td>
+                  <td class="text-center">
+                    <button class="btn btn-danger deleteRow" name="delete">Delete</button>
                   </td>
                 </tr>
               </tbody>
@@ -186,7 +196,6 @@ $rowService=mysqli_fetch_all($queryService, MYSQLI_ASSOC);
 
 <!-- JS to Auto Calculate -->
 <script>
-// Grab the necessary elements.
 const addTransactionBtn = document.getElementById('addTransaction');
 const tbody = document.querySelector('#myTable tbody');
 
@@ -196,15 +205,24 @@ addTransactionBtn.addEventListener('click', function() {
     <td>
       <select name="id_service[]" class="service form-control" required>
         <option value="">Select Service</option>
-         <?php foreach($rowService as $data): ?>
-           <option value="<?= $data['id'] ?>"><?= $data['service_name'] ?></option>
-         <?php endforeach ?>
+        <?php foreach($rowService as $data): ?>
+          <option value="<?= $data['id'] ?>"><?= $data['service_name'] ?></option>
+        <?php endforeach ?>
       </select>
     </td>
     <td>
       <input type="number" step="any" name="qty[]" class="qty form-control" required>
+    </td>
+    <td class="text-center">
+      <button type="button" class="btn btn-danger deleteRow">Delete</button>
     </td>`;
   tbody.appendChild(tr);
 });
 
+tbody.addEventListener('click', function(e) {
+  if (e.target && e.target.classList.contains('deleteRow')) {
+    e.target.closest('tr').remove();
+  }
+});
 </script>
+

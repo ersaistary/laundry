@@ -24,7 +24,7 @@ $rowsUser = mysqli_fetch_all($queryUser, MYSQLI_ASSOC);
         <tr>
           <td><?= $key + 1 ?></td>
           <td><?= $row['service_name'] ?></td>
-          <td><?= $row['price'] ?></td>
+          <td><?= "Rp " . $row['price']/1000 ?></td>
           <td><?= $row['description'] ?></td>
           <td>
             <a href="?page=tambah-service&edit=<?= $row['id'] ?>" class="btn btn-primary">Edit</a>

@@ -16,7 +16,7 @@ if (isset($_GET['edit'])) {
 // Insert/Update operation when the form is submitted
 if (isset($_POST['service_name'])) {
     $service_name = $_POST['service_name'];
-    $price        = $_POST['price'];
+    $price        = $_POST['price']*1000;
     $description  = $_POST['description'];
 
     if (isset($_GET['edit'])) {

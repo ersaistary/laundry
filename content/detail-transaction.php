@@ -32,7 +32,7 @@ if(isset($_POST['back'])){
         <div class="row" align="right">
           <div class="col">
             <?php if(isset($rowDetail['order_status']) && $rowDetail['order_status'] == 1): ?>
-              <a href="?page=print&print=<?= $rowDetail['id']?>" class="btn btn-primary">Print</a>
+              <a href="?page=print&print=<?= $rowDetail['id']?>" class="btn btn-primary mb-3">Print</a>
             <?php endif?>
           </div>
         </div>
@@ -114,8 +114,13 @@ if(isset($_POST['back'])){
           </div>
           <?php if(isset($rowDetail['order_status']) && $rowDetail['order_status'] == 1): ?>
           <div class="d-flex align-items-center justify-content-end mb-2">
+            <label class="form-label me-2 mb-0">Payment</label>
+            <input type="text" class="form-control form-control" style="width: 250px;" readonly value="<?= "Rp " . $rowDetail['order_pay']/1000 ?>">
+          </div>
+          <div class="d-flex align-items-center justify-content-end mb-2">
             <label class="form-label me-2 mb-0">Change</label>
             <input type="text" class="form-control form-control" style="width: 250px;" readonly value="<?= "Rp " . $rowDetail['order_change']/1000 ?>">
+
           </div>
           <?php endif; ?>
         </div>

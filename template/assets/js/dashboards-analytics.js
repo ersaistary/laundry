@@ -19,7 +19,7 @@
       series: [
         {
           name: '2021',
-          data: [18, 7, 15, 29, 18, 12, 9]
+          data: [50, 7, 15, 29, 18, 12, 9]
         },
         {
           name: '2020',
@@ -269,10 +269,24 @@
         }
       }
     };
+    
   if (typeof totalRevenueChartEl !== undefined && totalRevenueChartEl !== null) {
     const totalRevenueChart = new ApexCharts(totalRevenueChartEl, totalRevenueChartOptions);
     totalRevenueChart.render();
   }
+
+  setTimeout(() => {
+    totalRevenueChart.updateSeries([
+      {
+        name: '2021',
+        data: [80, 70, 60, 90, 50, 40, 30]
+      },
+      {
+        name: '2020',
+        data: [-10, -15, -8, -12, -5, -10, -7]
+      }
+    ]);
+  }, 2000);
 
   // Growth Chart - Radial Bar Chart
   // --------------------------------------------------------------------

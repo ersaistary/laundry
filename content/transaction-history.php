@@ -1,4 +1,4 @@
-<?php 
+<?php     
     $queryCustomer = mysqli_query($config, 
     "SELECT trans_order.*, customer.customer_name
     FROM trans_order
@@ -13,7 +13,7 @@
 ?>
 <!-- Striped Rows -->
 <div class="card">
-<h5 class="card-header">On Going Transaction</h5>
+<h5 class="card-header">Transaction History</h5>
 <form action="" method="post">
     <h5 align="right" class="me-3">
         <button type="submit" class="btn btn-primary" name="back">Back</button>
@@ -43,8 +43,10 @@
                 <td>Rp <?= $row['total']/1000 ?></td>
                 <td>
                     <a href="?page=detail-transaction&detail=<?php echo $row['id']?>" class = "btn btn-primary" name="detail">Detail</a>
+                    <a onclick="return confirm('Are you sure you want to delete this user?')" 
+                    href="?page=tambah-transaction&delete=<?= $row['id'] ?>" 
+                    class="btn btn-danger">Delete</a>
                 </td>
-                <input type="hidden" name="id_order" id="modal_order_id" value="<?php $row['id'] ?>">
             </tr>
             <?php endforeach?>
     </tbody>
