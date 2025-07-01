@@ -67,7 +67,7 @@
           <div class="menu-inner-shadow"></div>
  
           <ul class="menu-inner py-1">
-            <?php if ($_SESSION['ID_USER'] == '1' || $_SESSION['ID_USER'] == '3'): ?>
+            <?php if ($_SESSION['ID_USER'] == '1'): ?>
             <!-- User -->
             <li class="menu-item">
               <a href="?page=user" class="menu-link">
@@ -85,13 +85,28 @@
             </li>
 
             <!-- Customer -->
-            <li class="menu-item">
-              <a href="?page=customer" class="menu-link">
-                <i class="menu-icon tf-icons bx  bx-user-circle"></i>
-                <div data-i18n="Analytics">Customer</div>
-              </a>
-            </li>
+              <li class="menu-item">
+                <a href="?page=customer" class="menu-link">
+                  <i class="menu-icon tf-icons bx  bx-user-circle"></i>
+                  <div data-i18n="Analytics">Customer</div>
+                </a>
+              </li>
+
             <?php endif; ?>
+            
+            <?php if ($_SESSION['ID_USER'] == '2'): ?>
+              <!-- Custommer -->
+              <li class="menu-header small text-uppercase">
+                <span class="menu-header-text">Customer</span>
+              </li>
+
+              <!-- Customer -->
+              <li class="menu-item">
+                <a href="?page=customer" class="menu-link">
+                  <i class="menu-icon tf-icons bx  bx-user-circle"></i>
+                  <div data-i18n="Analytics">Customer</div>
+                </a>
+              </li>
             <!-- Transaction -->
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Transaction</span>
@@ -112,9 +127,22 @@
                 <div data-i18n="Analytics">New Transaction</div>
               </a>
             </li>
+            <?php endif?>
 
-            
-
+            <?php if ($_SESSION['ID_USER'] == '3'): ?>
+            <!-- Report -->
+            <li class="menu-header small text-uppercase">
+              <span class="menu-header-text">Report</span>
+            </li>
+            <!-- New Transaction -->
+            <li class="menu-item">
+              <a href="?page=report-print" class="menu-link">
+                <i class="menu-icon tf-icons bx  bx-user-circle"></i>
+                <div data-i18n="Analytics">Print Report</div>
+              </a>
+            </li>
+            <?php endif?>
+              
             
           </ul>
         </aside>

@@ -60,6 +60,15 @@
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="template/assets/js/config.js"></script>
+
+      <style>
+        @media print {
+            .d-print-none {
+                display: none !important;
+            }
+        }
+
+      </style>
   </head>
 
   <body>
@@ -72,12 +81,14 @@
         <?php endif?>
         <!-- / Menu -->
 
+        <div class="layout-page ">
         <!-- Layout container -->
-        <div class="layout-page">
-        <?php if(!isset($_GET['print'])):
-        include 'inc/navbar.php';
-        endif
-        ?>
+         <div class="d-print-none">
+            <?php if(!isset($_GET['print'])):
+            include 'inc/navbar.php';
+            endif
+            ?>
+         </div>
 
           <!-- Content wrapper -->
           <div class="content-wrapper">
